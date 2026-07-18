@@ -1,0 +1,4 @@
+- name: Example Friend
+  url: https://example.com/
+  desc: A placeholder friend link
+  image: /_data/avatar/avatar.webp
