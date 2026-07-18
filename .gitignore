@@ -1,0 +1,12 @@
+node_modules/
+public/
+db.json
+.deploy*/
+.claude/
+*.log
+.DS_Store
+
+# Reference screenshots dropped in the project root while customizing
+/image.png
+/image*.png
+/image*.webp
