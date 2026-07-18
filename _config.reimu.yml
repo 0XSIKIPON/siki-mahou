@@ -1,0 +1,206 @@
+# Reimu theme override — lives in the SITE, merged over themes/reimu/_config.yml.
+# Only keys we customize go here; everything else falls back to the theme default.
+# Full option docs: themes/reimu/README.en.md
+
+# ---------------------------------------------------------------------------
+# Navigation menu
+# ---------------------------------------------------------------------------
+menu:
+  - name: home
+    url: /
+    icon:
+  - name: archives
+    url: /archives
+    icon:
+  - name: about
+    url: /about
+    icon:
+  - name: friend
+    url: /friend
+    icon:
+
+# ---------------------------------------------------------------------------
+# Sidebar: position on the LEFT
+# ---------------------------------------------------------------------------
+sidebar:
+  position: left
+  menu: true
+  article:
+    show_common: true
+
+# ---------------------------------------------------------------------------
+# Banner: static header image shown on every page.
+# File lives at source/images/banner2.jpg
+# ---------------------------------------------------------------------------
+banner: "/images/banner2.jpg"
+
+# ---------------------------------------------------------------------------
+# Identity / avatar
+# avatar file lives at source/_data/avatar/avatar.webp
+# ---------------------------------------------------------------------------
+avatar: "avatar.webp"
+
+# ---------------------------------------------------------------------------
+# Social links — uncomment and fill in as needed
+# ---------------------------------------------------------------------------
+social:
+  github: https://github.com/0XSIKIPON
+  # email: mailto:you@example.com
+
+# ---------------------------------------------------------------------------
+# Sidebar widgets: keep only the Label Cloud (tagcloud).
+# Archive / category / tag / recent_posts intentionally removed.
+# ---------------------------------------------------------------------------
+widgets:
+  - tagcloud
+
+# ---------------------------------------------------------------------------
+# Dark mode: auto follows the OS preference, with a manual toggle
+# ---------------------------------------------------------------------------
+dark_mode:
+  enable: auto
+
+# ---------------------------------------------------------------------------
+# Fonts: match the official demo (d-sketon.github.io) — LXGW WenKai for body
+# text, loaded from the ZeoSeven font API. custom_font has higher priority
+# than the Google `font` block, so this becomes the primary article family.
+# ---------------------------------------------------------------------------
+custom_font:
+  enable: true
+  article:
+    - css: https://fontsapi.zeoseven.com/292/main/result.css
+      name: LXGW WenKai
+  code:
+
+# ---------------------------------------------------------------------------
+# Search: local generator search (zero external service, zero config)
+# ---------------------------------------------------------------------------
+generator_search:
+  enable: true
+  field: post
+  content: true
+
+# ---------------------------------------------------------------------------
+# Logo: replace the yin-yang (taichi) with the Kubernetes wheel everywhere.
+#
+# Image-based instances (back-to-top button, footer, sponsor) are repointed
+# here via *.icon.url with mask:true -> rendered as a theme-colored silhouette.
+# Path is relative to css/style.css, so "../images/..." reaches source/images.
+# The glyph / inline-SVG instances (sidebar menu buttons, header nav, sidebar
+# toggle, and the refresh preloader) are converted to the same masked SVG by
+# the injector CSS further down.
+# ---------------------------------------------------------------------------
+top:
+  enable: true
+  position: right
+  icon:
+    url: "../images/k8s-wheel.svg"
+    rotate: true
+    mask: true
+
+footer:
+  icon:
+    url: "../images/k8s-wheel.svg"
+    rotate: true
+    mask: true
+
+# ---------------------------------------------------------------------------
+# Inject CSS: replace every remaining yin-yang (taichi) with the masked k8s
+# wheel. These are font glyphs / inline SVG, so we hide the original and
+# overlay a mask-clipped ::after tinted with the theme red.
+#   .sidebar-menu-icon  -> sidebar menu buttons + sidebar menu toggle
+#   .main-nav-icon      -> top navbar icon
+#   .loading-taichi     -> the preloader shown on page refresh
+# ---------------------------------------------------------------------------
+injector:
+  head_end: |
+    <style>
+    .sidebar-menu-icon,
+    .main-nav-icon,
+    .loading-taichi {
+      color: transparent !important;
+      position: relative;
+    }
+    /* Preloader: hide the original inline SVG and give the box an explicit
+       size, because without the SVG the container would collapse to 0x0. */
+    .loading-taichi svg,
+    .loading-taichi img {
+      display: none !important;
+    }
+    .loading-taichi {
+      width: 150px;
+      height: 150px;
+    }
+    .sidebar-menu-icon::after,
+    .main-nav-icon::after,
+    .loading-taichi::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: var(--red-1, #ff5252);
+      -webkit-mask: url(/siki-mahou/images/k8s-wheel.svg) no-repeat center / contain;
+      mask: url(/siki-mahou/images/k8s-wheel.svg) no-repeat center / contain;
+    }
+    /* When a menu item is active or hovered the button turns solid red, so
+       paint the wheel white to keep it visible (mirrors the theme's own
+       .link-active color:#fff on the icon). */
+    .link-active .sidebar-menu-icon::after,
+    .sidebar-menu-link-wrap:hover .sidebar-menu-icon::after,
+    .main-nav-icon:hover::after {
+      background-color: #fff;
+    }
+    /* Search overlay: replace the default reimu.png with a custom image. */
+    .reimu-bg {
+      content: url(/siki-mahou/images/reimu-no-bg.png);
+      width: 150px;
+      height: auto;
+    }
+    </style>
+
+# ---------------------------------------------------------------------------
+# Home page: show CATEGORY cover cards instead of the plain post list.
+# cover: empty = random cover from source/_data/covers.yml.
+# Replace the cover paths with real images when you have them.
+# ---------------------------------------------------------------------------
+home_categories:
+  enable: true
+  content:
+    - categories: CTF writeups
+      cover: # TODO: add a cover image path, e.g. /images/covers/ctf.webp
+    - categories: Notes
+      cover: # TODO: add a cover image path, e.g. /images/covers/notes.webp
+
+# ---------------------------------------------------------------------------
+# Sidebar music player (APlayer). Direct audio-file URLs only.
+# Replace the placeholder url with a real .mp3 URL to make it play.
+# position: before_sidebar puts it at the TOP of the sidebar.
+# ---------------------------------------------------------------------------
+# pjax lets the music keep playing across page navigation (recommended with player)
+pjax:
+  enable: true
+
+player:
+  disable_on_mobile: false
+  position: before_sidebar
+  aplayer:
+    enable: true
+    options:
+      audio:
+        - name: Placeholder Track
+          artist: Unknown
+          url: # TODO: paste a direct .mp3 URL here (APlayer cannot play YouTube)
+          # cover: /images/covers/song.webp
+      fixed: false
+      autoplay: false
+      loop: all
+      order: list
+      preload: none
+      volume: 0.5
+      listFolded: false
+  meting:
+    enable: false
+
+# ---------------------------------------------------------------------------
+# Comments: NONE for now. Every comment system stays disabled (theme default).
+# To add giscus later: set comment.default: giscus and fill the giscus block.
+# ---------------------------------------------------------------------------
