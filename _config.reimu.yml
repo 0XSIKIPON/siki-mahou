@@ -55,6 +55,14 @@ reimu_cursor:
   enable: false
 
 # ---------------------------------------------------------------------------
+# RSS: off. The theme defaults to rss: atom.xml, but hexo-generator-feed is not
+# installed, so that file is never built and both the navbar icon and the head
+# <link rel="alternate"> pointed at a 404. false makes the theme skip rendering
+# them. To enable RSS later: npm i hexo-generator-feed, then set rss: atom.xml.
+# ---------------------------------------------------------------------------
+rss: false
+
+# ---------------------------------------------------------------------------
 # Social links — uncomment and fill in as needed
 # ---------------------------------------------------------------------------
 social:
