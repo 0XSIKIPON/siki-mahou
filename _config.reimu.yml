@@ -67,13 +67,21 @@ rss: false
 # ---------------------------------------------------------------------------
 social:
   github: https://github.com/0XSIKIPON
+  # TODO: replace YOUR_HANDLE below with the real usernames before deploying.
+  twitter: https://x.com/SeifMessaoudi
+  linkedin: https://www.linkedin.com/in/seifeddine-messaoudi/
   # email: mailto:you@example.com
 
 # ---------------------------------------------------------------------------
-# Sidebar widgets: keep only the Label Cloud (tagcloud).
-# Archive / category / tag / recent_posts intentionally removed.
+# Sidebar widgets, rendered top-to-bottom in this order.
+# 'archive' is the only shipped widget left out.
+# NOTE: with no posts published yet these render as empty boxes; they fill in
+# automatically once posts exist.
 # ---------------------------------------------------------------------------
 widgets:
+  - recent_posts
+  - category
+  - tag
   - tagcloud
 
 # ---------------------------------------------------------------------------
@@ -193,25 +201,24 @@ home_categories:
       cover: /images/covers/Blogs-banner.jpg
 
 # ---------------------------------------------------------------------------
-# Sidebar music player (APlayer). Direct audio-file URLs only.
-# Replace the placeholder url with a real .mp3 URL to make it play.
-# position: before_sidebar puts it at the TOP of the sidebar.
+# pjax: kept on for faster in-site navigation (originally added so the music
+# player would survive page changes; still worth having without it).
 # ---------------------------------------------------------------------------
-# pjax lets the music keep playing across page navigation (recommended with player)
 pjax:
   enable: true
 
+# ---------------------------------------------------------------------------
+# Sidebar music player: OFF. Keeping the blog simple and avoiding hosting
+# unlicensed commercial soundtracks. Disabling APlayer also drops its CSS/JS
+# from every page. To re-enable: set aplayer.enable true and add an audio list
+# of direct .mp3 URLs (APlayer cannot play YouTube/Spotify links).
+# ---------------------------------------------------------------------------
 player:
   disable_on_mobile: false
   position: before_sidebar
   aplayer:
-    enable: true
+    enable: false
     options:
-      audio:
-        - name: Placeholder Track
-          artist: Unknown
-          url: # TODO: paste a direct .mp3 URL here (APlayer cannot play YouTube)
-          # cover: /images/covers/song.webp
       fixed: false
       autoplay: false
       loop: all
