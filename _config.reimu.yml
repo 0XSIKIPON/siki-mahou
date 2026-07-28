@@ -41,6 +41,20 @@ banner: "/images/banner2.jpg"
 avatar: "avatar.webp"
 
 # ---------------------------------------------------------------------------
+# Favicon (browser tab icon): Black Bulls emblem instead of the theme default
+# (/images/favicon.ico). Source art is 468x512; black-bulls-favicon.png is the
+# same art transparent-padded to a square 512x512 so tabs don't squash it.
+# ---------------------------------------------------------------------------
+favicon: "/images/black-bulls-favicon.png"
+
+# ---------------------------------------------------------------------------
+# Cursor: disable the theme's custom Reimu cursor images and fall back to the
+# native OS cursors (auto / pointer / text).
+# ---------------------------------------------------------------------------
+reimu_cursor:
+  enable: false
+
+# ---------------------------------------------------------------------------
 # Social links — uncomment and fill in as needed
 # ---------------------------------------------------------------------------
 social:
@@ -166,9 +180,9 @@ home_categories:
   enable: true
   content:
     - categories: CTF writeups
-      cover: # TODO: add a cover image path, e.g. /images/covers/ctf.webp
-    - categories: Notes
-      cover: # TODO: add a cover image path, e.g. /images/covers/notes.webp
+      cover: /images/covers/CTFwriteups-banner.jpg
+    - categories: Blogs
+      cover: /images/covers/Blogs-banner.jpg
 
 # ---------------------------------------------------------------------------
 # Sidebar music player (APlayer). Direct audio-file URLs only.
