@@ -65,12 +65,15 @@ rss: false
 # ---------------------------------------------------------------------------
 # Social links — uncomment and fill in as needed
 # ---------------------------------------------------------------------------
+# NOTE: keys listed here do double duty — they render the sidebar icons AND
+# they gate which glyphs get compiled into the icon font CSS (see
+# themes/reimu/source/css/iconfont.styl: `if ('instagram' in social-keys)`).
+# The About page reuses those same glyphs, so a key must live here for its
+# icon to appear there.
 social:
   github: https://github.com/0XSIKIPON
-  # TODO: replace YOUR_HANDLE below with the real usernames before deploying.
   twitter: https://x.com/SeifMessaoudi
   linkedin: https://www.linkedin.com/in/seifeddine-messaoudi/
-  # email: mailto:you@example.com
 
 # ---------------------------------------------------------------------------
 # Sidebar widgets, rendered top-to-bottom in this order.
@@ -184,6 +187,64 @@ injector:
       content: url(/siki-mahou/images/reimu-no-bg.png);
       width: 150px;
       height: auto;
+    }
+    /* About page "Find me": icon-only social row, separated by "/".
+       Names live in title/aria-label so they show on hover and to screen
+       readers without taking up visual space. */
+    .about-socials {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      margin: 1.2em 0;
+    }
+    .about-social {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none !important;
+      color: inherit;
+      transition: color .2s, transform .2s;
+    }
+    .about-social:hover {
+      color: var(--red-1, #ff5252);
+      transform: translateY(-2px);
+    }
+    .about-social .icon {
+      font-size: 1.6em;
+      line-height: 1;
+    }
+    /* Icon-font glyphs for the About page socials. The theme only compiles
+       these when the matching key exists in `social:`, and the compiled rules
+       land in style.css -- which browsers cache aggressively, so a stale copy
+       shows blank boxes. Declaring them here in the injected <style> keeps the
+       icons working regardless of which style.css version is cached. */
+    .about-social .icon-github::before    { font-family: 'iconfont'; content: '\e619'; }
+    .about-social .icon-twitter::before   { font-family: 'iconfont'; content: '\e62a'; }
+    .about-social .icon-linkedin::before  { font-family: 'iconfont'; content: '\e614'; }
+    .about-social .icon-email::before     { font-family: 'iconfont'; content: '\e63c'; }
+    .about-social .icon-instagram::before { font-family: 'iconfont'; content: '\e615'; }
+    .about-social .icon-facebook::before  { font-family: 'iconfont'; content: '\e60e'; }
+    /* Brand colors. The theme defines these in _partial/sidebar.styl but scopes
+       them under the sidebar, so the About page icons fell back to inherited
+       text color (the theme red). Restate them here, unscoped.
+       Values match the theme's own: sidebar.styl:202-244. */
+    .about-social .icon-github    { color: #191717; }
+    [data-theme='dark'] .about-social .icon-github { color: #bc88ff; }
+    .about-social .icon-twitter   { color: #191717; }
+    [data-theme='dark'] .about-social .icon-twitter { color: #e7e7e7; }
+    .about-social .icon-linkedin  { color: #0e76a8; }
+    .about-social .icon-email     { color: #ea4335; }
+    .about-social .icon-instagram { color: #e1306c; }
+    .about-social .icon-facebook  { color: #3b5998; }
+    /* Hover tints every icon the theme red, so override the brand color. */
+    .about-social:hover .icon { color: var(--red-1, #ff5252); }
+
+    /* Standalone pages (About / Friends) render through the same article
+       template as posts, so they inherit a published-date line built from the
+       file's mtime. Pages aren't dated content -- hide it. Scoped to
+       id^="page-" so real post dates are untouched. */
+    article[id^="page-"] .article-meta {
+      display: none;
     }
     </style>
 
