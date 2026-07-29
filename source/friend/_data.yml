@@ -1,4 +1,33 @@
-- name: Example Friend
-  url: https://example.com/
-  desc: A placeholder friend link
-  image: /_data/avatar/avatar.webp
+# NOTE: `image` is emitted verbatim into the <img src> by the theme's
+# friendsLink tag (themes/reimu/scripts/tag/friendLink.js) -- it does NOT run
+# through url_for(), so the site root prefix is not added automatically.
+# Paths must therefore include the /siki-mahou/ root, or be absolute URLs.
+- name: Raf² · Mohammed Rafraf
+  url: https://4n6nk8s.tech/
+  desc: Platform Engineer · Kubernetes Geek · Misc & Forensics Player
+  image: /siki-mahou/images/friends/raf2.jpeg
+
+- name: Ryan · East-rayyy
+  url: https://github.com/East-rayyy
+  desc: Founder @ Nuevanext
+  image: /siki-mahou/images/friends/ryan.png
+
+- name: omar-nahhas
+  url: https://github.com/omar-nahhas
+  desc: AI Platform Engineer · Kubernetes · Cloud · Security & Observability
+  image: /siki-mahou/images/friends/omar.png
+
+- name: Dali · IR0NBYTE
+  url: https://github.com/IR0NBYTE
+  desc: Security Researcher · Analyst 
+  image: /siki-mahou/images/friends/dali.png
+
+- name: Mohamed Ayadi
+  url: https://github.com/ayadi-mohamed
+  desc: Platform Engineer · Kubernetes 
+  image: /siki-mahou/images/friends/ayadi.jpeg
+
+- name: Souheil Ben Slama
+  url: https://github.com/souheilbenslama
+  desc: Software Engineer · Cloud-native Specialist · DevOps developer 
+  image: /siki-mahou/images/friends/souheil.jpeg
