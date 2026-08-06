@@ -246,6 +246,84 @@ injector:
     article[id^="page-"] .article-meta {
       display: none;
     }
+
+    /* Reference cards inside posts -- deliberately mirrors the Friends page
+       cards (themes/reimu/source/css/_partial/friend.styl) so the two read as
+       one design. Same two-up grid, same card chrome, same hover lift; the
+       icon box is smaller and uses `contain` because these are logos with
+       whitespace, not avatars that should be cropped to fill. */
+    .ref-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 16px 0;
+    }
+    .ref-item {
+      width: calc(50% - 10px);
+      box-sizing: border-box;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--color-wrap);
+      box-shadow: var(--shadow-card);
+      border-radius: 12px;
+      text-decoration: none !important;
+      color: inherit;
+      transition: 0.3s;
+    }
+    .ref-item:hover {
+      transform: scale(1.015);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .ref-icon {
+      height: 48px;
+      width: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ref-icon img {
+      max-width: 100%;
+      max-height: 100%;
+      /* contain, not cover: logos must not be cropped. */
+      object-fit: contain;
+    }
+    /* Several of these logos are near-black and vanish in dark mode. Lifting
+       brightness is enough without washing out the colored ones. */
+    [data-theme='dark'] .ref-icon img {
+      filter: brightness(0) invert(1);
+      opacity: .85;
+    }
+    .ref-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+      gap: 2px;
+    }
+    .ref-name {
+      color: var(--red-2);
+      font-size: 17px;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ref-desc {
+      color: var(--grey-9);
+      font-size: 14px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    /* One per row on narrow screens, matching friend.styl's mg-normal rule. */
+    @media (max-width: 800px) {
+      .ref-item { width: 100%; }
+    }
     </style>
 
 # ---------------------------------------------------------------------------
