@@ -8,15 +8,15 @@ tags:
   - kubectl
   - infrastructure-as-code
   - go
-banner: /images/posts/railctl-banner.png
-cover: /images/posts/railctl-banner.png
+banner: /images/posts/railctl-railway-kubectl-style/railctl-banner.png
+cover: /images/posts/railctl-railway-kubectl-style/railctl-banner.png
 description: "Railway solved deployment. railctl is for what happens after — declarative manifests, real diffs, and CI that can tell you what is about to change."
 ---
 
 If you've ever run `kubectl apply` and wished Railway worked the same way, this
 one's for you.
 
-![railctl — Railway, kubectl-style](/images/posts/railctl-banner.png)
+![railctl — Railway, kubectl-style](/images/posts/railctl-railway-kubectl-style/railctl-banner.png)
 
 You saw the boat and assumed this was a migration tool — something to get you
 _off_ Railway. It isn't.
@@ -198,7 +198,7 @@ Deletes exactly what the manifest declares, services in reverse order, then thei
 
 railctl has 57 commands and is much smaller than that sounds, because every one of them is the same four steps:
 
-![railctl architecture — authenticate, resolve, call, format](/images/posts/railctl-architecture.png)
+![railctl architecture — authenticate, resolve, call, format](/images/posts/railctl-railway-kubectl-style/railctl-architecture.png)
 
 1. **Authenticate.** Read a token from `--token` or `RAILWAY_TOKEN`. Detect its type: account, workspace, or project-scoped.
 2. **Resolve.** Railway's API speaks UUIDs; humans speak names. Turn `-p myapp -e production` into UUIDs.
@@ -234,7 +234,7 @@ That's a deliberate constraint enforced in review, and it buys three things.
 
 ## Which is what makes CI work
 
-![railctl gh action pipeline](/images/posts/railwaycicd.png)
+![railctl gh action pipeline](/images/posts/railctl-railway-kubectl-style/railwaycicd.png)
 
 Put those pieces together and the pipeline story falls out for free.
 
