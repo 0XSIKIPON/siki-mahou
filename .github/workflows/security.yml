@@ -1,0 +1,53 @@
+# Secret scanning with Gitleaks.
+#
+# SCOPE -- deliberately narrow:
+# This repo ships no runtime code. Hexo runs at build time and the output is
+# static HTML, so the realistic risk is not "vulnerable application code", it
+# is a credential accidentally committed. That risk went up the moment we
+# started wiring CI: a Cloudflare API token or the theme deploy key pasted into
+# a config file would be a real incident.
+#
+# Deliberately NOT included:
+#   npm audit  - Hexo's dependency tree reports high-severity findings in
+#                build-time-only tooling that never reaches a visitor. It would
+#                fail builds for nothing and train us to ignore the signal.
+#                Dependency freshness is handled by Dependabot instead.
+#   CodeQL     - analyses application source. We have none.
+#
+# NO SECRETS REQUIRED: gitleaks-action is free for public repos and for
+# personal private repos without a licence key.
+
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # 06:41 UTC every Monday. Catches anything pushed before a rule existed.
+    - cron: "41 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history: a secret committed and later "removed" still lives in
+          # earlier commits, and that copy is just as leaked.
+          fetch-depth: 0
+          # The theme submodule is scanned in its own repo; skip it here so
+          # this job needs no deploy key.
+          submodules: false
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -171,8 +171,8 @@ injector:
       position: absolute;
       inset: 0;
       background-color: var(--red-1, #ff5252);
-      -webkit-mask: url(/siki-mahou/images/k8s-wheel.svg) no-repeat center / contain;
-      mask: url(/siki-mahou/images/k8s-wheel.svg) no-repeat center / contain;
+      -webkit-mask: url(/images/k8s-wheel.svg) no-repeat center / contain;
+      mask: url(/images/k8s-wheel.svg) no-repeat center / contain;
     }
     /* When a menu item is active or hovered the button turns solid red, so
        paint the wheel white to keep it visible (mirrors the theme's own
@@ -184,7 +184,7 @@ injector:
     }
     /* Search overlay: replace the default reimu.png with a custom image. */
     .reimu-bg {
-      content: url(/siki-mahou/images/reimu-no-bg.png);
+      content: url(/images/reimu-no-bg.png);
       width: 150px;
       height: auto;
     }

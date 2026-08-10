@@ -1,0 +1,236 @@
+# Watch the upstream theme (D-Sketon/hexo-theme-reimu) for changes we have not
+# pulled into our fork yet, and open a GitHub Issue summarising them.
+#
+# WHY THIS EXISTS:
+# themes/reimu is a submodule pinned to a specific commit of our PRIVATE fork
+# (0XSIKIPON/Siki-Mahou-theme), which itself was forked from the public
+# upstream. Upstream keeps shipping fixes and features; nothing tells us. This
+# job diffs our pinned commit against upstream main every two weeks and reports
+# what changed -- it NEVER modifies the submodule. Applying updates stays a
+# deliberate manual decision.
+#
+# NO SECRETS REQUIRED: upstream is a public repo, and the Issue is opened with
+# the automatically-provided GITHUB_TOKEN.
+
+name: Theme upstream watch
+
+on:
+  schedule:
+    # 07:19 UTC on the 1st and 15th -- roughly every two weeks.
+    # Off-the-hour on purpose: scheduled jobs at :00 queue behind everyone
+    # else's and get delayed.
+    - cron: "19 7 1,15 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  UPSTREAM_REPO: D-Sketon/hexo-theme-reimu
+  UPSTREAM_URL: https://github.com/D-Sketon/hexo-theme-reimu.git
+  # Paths we customise or hook into from the site repo. Changes here are the
+  # ones most likely to break our setup, so they get called out separately.
+  #   _config.yml       -> we override keys in _config.reimu.yml
+  #   layout/           -> our injector CSS targets these classes
+  #   source/css/       -> we restate brand colours / icon rules
+  #   scripts/          -> friendLink tag, helpers we depend on
+  # Newline-separated: a space-separated string would be read as one word by
+  # the `while read` loop below and never match anything.
+  WATCHED_PATHS: |
+    _config.yml
+    layout/
+    source/css/
+    scripts/
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout site (submodule pointer only)
+        uses: actions/checkout@v4
+        with:
+          # We only need the recorded submodule SHA, not the theme contents --
+          # so no deploy key and no submodule checkout here. Keeps this job
+          # working even if the deploy key is missing or rotated.
+          submodules: false
+
+      - name: Read pinned theme commit
+        id: pinned
+        run: |
+          # `git ls-tree` reports the gitlink SHA the site repo has pinned.
+          sha=$(git ls-tree HEAD themes/reimu | awk '{print $3}')
+          if [ -z "$sha" ]; then
+            echo "::error::Could not read the themes/reimu submodule pointer."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Pinned theme commit: $sha"
+
+      - name: Fetch upstream and compare
+        id: compare
+        run: |
+          set -euo pipefail
+          PINNED="${{ steps.pinned.outputs.sha }}"
+
+          git init -q upstream-theme
+          cd upstream-theme
+          git remote add upstream "$UPSTREAM_URL"
+          # Full history + tags: needed to resolve the pinned commit and to
+          # match release tags against it.
+          git fetch -q --tags upstream
+
+          # The pinned commit must exist upstream for a diff to make sense. If
+          # our fork has its own commits on top, it will not -- report that
+          # instead of failing.
+          if ! git cat-file -e "${PINNED}^{commit}" 2>/dev/null; then
+            echo "diverged=true" >> "$GITHUB_OUTPUT"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Pinned commit $PINNED is not present upstream; the fork has diverged. Skipping diff."
+            exit 0
+          fi
+          echo "diverged=false" >> "$GITHUB_OUTPUT"
+
+          COUNT=$(git rev-list --count "${PINNED}..upstream/main")
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "Already up to date with upstream."
+            exit 0
+          fi
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+
+          mkdir -p ../artifacts
+          # Full patch: the artifact you actually read before deciding.
+          git diff "${PINNED}..upstream/main" > ../artifacts/full-diff.patch
+          git log --oneline --no-decorate "${PINNED}..upstream/main" > ../artifacts/commits.txt
+          git diff --stat "${PINNED}..upstream/main" > ../artifacts/diffstat.txt
+
+          # Which of the paths we customise were touched?
+          git diff --name-only "${PINNED}..upstream/main" > ../artifacts/changed-files.txt
+          : > ../artifacts/watched-hits.txt
+          while IFS= read -r p; do
+            [ -n "$p" ] || continue
+            # Count how many changed files sit under this watched path, so the
+            # issue can say "layout/ (3 files)" rather than just naming it.
+            n=$(grep -c "^${p}" ../artifacts/changed-files.txt || true)
+            if [ "${n:-0}" -gt 0 ]; then
+              echo "${p}|${n}" >> ../artifacts/watched-hits.txt
+            fi
+          done <<< "$WATCHED_PATHS"
+
+          # Release notes published after our pinned commit. Upstream writes
+          # bilingual changelogs, so this is the human-readable "what changed".
+          PINNED_DATE=$(git show -s --format=%cI "$PINNED")
+          echo "pinned_date=$PINNED_DATE" >> "$GITHUB_OUTPUT"
+          gh api "repos/${UPSTREAM_REPO}/releases" --paginate \
+            --jq '.[] | select(.draft == false) | {tag: .tag_name, published: .published_at, body: .body}' \
+            > ../artifacts/releases.jsonl || echo "(could not fetch releases)" > ../artifacts/releases.jsonl
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build issue body
+        if: steps.compare.outputs.has_changes == 'true'
+        run: |
+          set -euo pipefail
+          cd artifacts
+          PINNED="${{ steps.pinned.outputs.sha }}"
+          COUNT="${{ steps.compare.outputs.count }}"
+          PINNED_DATE="${{ steps.compare.outputs.pinned_date }}"
+
+          {
+            echo "The upstream theme has **${COUNT}** commit(s) we have not pulled in."
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Our pinned commit | \`${PINNED:0:10}\` (${PINNED_DATE}) |"
+            echo "| Upstream | [\`${UPSTREAM_REPO}\`](https://github.com/${UPSTREAM_REPO}) |"
+            echo "| Compare | https://github.com/${UPSTREAM_REPO}/compare/${PINNED}...main |"
+            echo
+
+            if [ -s watched-hits.txt ]; then
+              echo "### Review carefully"
+              echo
+              echo "These upstream paths are ones we customise or hook into, so changes here are the most likely to break our setup:"
+              echo
+              while IFS='|' read -r p n; do
+                [ -n "$p" ] || continue
+                echo "- \`${p}\` — ${n} file(s) changed"
+              done < watched-hits.txt
+              echo
+            else
+              echo "### No customised paths touched"
+              echo
+              echo "None of the paths we override changed, so the risk to our setup is low."
+              echo
+            fi
+
+            echo "### Release notes since our pin"
+            echo
+            if [ -s releases.jsonl ]; then
+              python3 ../.github/scripts/format-releases.py releases.jsonl "$PINNED_DATE"
+            else
+              echo "_(release notes unavailable)_"
+            fi
+            echo
+
+            echo "### Commits"
+            echo
+            echo '```'
+            cat commits.txt
+            echo '```'
+            echo
+            echo "### Files changed"
+            echo
+            echo '```'
+            cat diffstat.txt
+            echo '```'
+            echo
+            echo "---"
+            echo
+            echo "The **full patch** is attached as a workflow artifact (\`theme-upstream-diff\`) on [this run](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) — download it to review before deciding."
+            echo
+            echo "**Nothing has been changed.** To adopt these updates, update the fork and bump the submodule pointer manually."
+          } > issue-body.md
+
+          echo "Issue body built ($(wc -l < issue-body.md) lines)."
+        env:
+          PINNED_DATE: ${{ steps.compare.outputs.pinned_date }}
+
+      - name: Upload diff artifacts
+        if: steps.compare.outputs.has_changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: theme-upstream-diff
+          path: artifacts/
+          retention-days: 90
+
+      - name: Open issue
+        if: steps.compare.outputs.has_changes == 'true'
+        run: |
+          set -euo pipefail
+          TITLE="Theme upstream: ${{ steps.compare.outputs.count }} new commit(s) to review"
+
+          # Reuse the existing open report instead of stacking duplicates every
+          # run -- otherwise a stale upstream would spam an issue a fortnight.
+          EXISTING=$(gh issue list --state open --label theme-upstream \
+            --json number --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body-file artifacts/issue-body.md
+            echo "Commented on existing issue #${EXISTING}."
+          else
+            gh label create theme-upstream \
+              --description "Upstream hexo-theme-reimu changes awaiting review" \
+              --color 0e8a16 2>/dev/null || true
+            gh issue create --title "$TITLE" \
+              --body-file artifacts/issue-body.md \
+              --label theme-upstream
+            echo "Opened a new issue."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report no-op
+        if: steps.compare.outputs.has_changes != 'true'
+        run: echo "No upstream changes to report; no issue opened."

@@ -1,0 +1,50 @@
+# Dependabot: keep dependencies current so we are never forced into a big,
+# risky upgrade. Config only -- no workflow file and no Actions minutes.
+#
+# Note this does NOT cover the theme: themes/reimu is a git submodule pinned by
+# commit, which Dependabot does not track. That is what
+# .github/workflows/theme-watch.yml is for.
+
+version: 2
+
+updates:
+  # ---------------------------------------------------------------------------
+  # npm -- Hexo and its plugins.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:23"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      # One PR for routine patch/minor bumps instead of a flood of separate
+      # ones. Majors stay separate because they are the ones that can break a
+      # build and deserve individual review.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # ---------------------------------------------------------------------------
+  # GitHub Actions -- the actions pinned in .github/workflows/*.yml.
+  # Worth tracking: a stale action can start failing when GitHub retires a
+  # runner or Node version.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:31"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: "chore(ci)"

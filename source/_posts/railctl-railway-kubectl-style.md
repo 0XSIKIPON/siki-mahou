@@ -286,27 +286,27 @@ Your infrastructure should be a file you can review in a pull request. Now it ca
 
 <div class="ref-wrap">
   <a class="ref-item" href="https://github.com/kubenoops/railctl" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/github.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/github.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">railctl</div>
       <div class="ref-desc">The tool itself — source, releases, and the n8n example stack.</div>
     </div>
   </a>
   <a class="ref-item" href="https://railway.app" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/railway.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/railway.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">Railway</div>
       <div class="ref-desc">The deployment platform railctl drives.</div>
     </div>
   </a>
   <a class="ref-item" href="https://docs.railway.com/cli" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/railway.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/railway.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">Railway CLI docs</div>
       <div class="ref-desc">Official reference for the CLI compared throughout this post.</div>
     </div>
   <a class="ref-item" href="https://kubernetes.io/docs/reference/kubectl/" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/kubernetes.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/kubernetes.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">kubectl</div>
       <div class="ref-desc">The interface railctl borrows its verbs and shapes from.</div>

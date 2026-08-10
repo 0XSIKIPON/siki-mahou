@@ -21,7 +21,7 @@ Building an n8n queue-mode stack by hand works. Doing it twice, identically, doe
 ![Deploying n8n on Railway](/images/posts/deploy-n8n-on-railway/n8nonrailway.png)
 ## Where we left off
 
-In the [previous post](/siki-mahou/2026/08/05/railctl-railway-kubectl-style/) we looked at **what railctl is and what it's for**: a kubectl-shaped CLI for Railway, built on the idea that your infrastructure should be a document you can review in a pull request rather than a sequence of commands somebody once ran.
+In the [previous post](/2026/08/05/railctl-railway-kubectl-style/) we looked at **what railctl is and what it's for**: a kubectl-shaped CLI for Railway, built on the idea that your infrastructure should be a document you can review in a pull request rather than a sequence of commands somebody once ran.
 
 That post was mostly argument. This one is mostly typing. 🤔💭
 
@@ -676,42 +676,42 @@ The full stack used here lives in [`Deploy-n8n-stack-on-railway-using-railctl/n8
 
 <div class="ref-wrap">
   <a class="ref-item" href="https://github.com/kubenoops/railctl" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/github.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/github.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">railctl</div>
       <div class="ref-desc">The tool used throughout — source, releases, and docs.</div>
     </div>
   </a>
   <a class="ref-item" href="https://github.com/kubenoops/railctl/tree/main/examples/n8n" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/github.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/github.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">n8n queue-mode example</div>
       <div class="ref-desc">The complete stack.yaml and per-service configs from this post.</div>
     </div>
   </a>
   <a class="ref-item" href="https://n8n.io" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/n8n.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/n8n.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">n8n</div>
       <div class="ref-desc">The workflow automation tool we're deploying.</div>
     </div>
   </a>
   <a class="ref-item" href="https://docs.n8n.io/hosting/scaling/queue-mode/" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/n8n.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/n8n.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">n8n queue mode</div>
       <div class="ref-desc">Official docs for the primary/worker split this stack uses.</div>
     </div>
   </a>
   <a class="ref-item" href="https://railway.app" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/railway.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/railway.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">Railway</div>
       <div class="ref-desc">The platform hosting all four services.</div>
     </div>
   </a>
   <a class="ref-item" href="https://github.com/0XSIKIPON/Deploy-n8n-stack-on-railway-using-railctl" target="_blank" rel="noopener noreferrer">
-    <div class="ref-icon"><img class="no-lightbox" src="/siki-mahou/images/refs/github.svg" alt="" loading="lazy"></div>
+    <div class="ref-icon"><img class="no-lightbox" src="/images/refs/github.svg" alt="" loading="lazy"></div>
     <div class="ref-info">
       <div class="ref-name">Deploy n8n stack with railctl</div>
       <div class="ref-desc">Get your lab template and start deploying your n8n to railway</div>

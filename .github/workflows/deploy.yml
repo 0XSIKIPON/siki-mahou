@@ -1,0 +1,81 @@
+# Build the Hexo site and publish it to Cloudflare Pages.
+#
+# WHY NOT CLOUDFLARE'S GIT INTEGRATION:
+# The theme lives in a PRIVATE submodule (themes/reimu ->
+# 0XSIKIPON/Siki-Mahou-theme). Cloudflare's own builders have no clean way to
+# authenticate an SSH submodule, so we build here in Actions -- where a deploy
+# key works -- and push the finished public/ directory to Cloudflare with
+# Wrangler's direct-upload mode. Do NOT connect the Cloudflare Git integration.
+#
+# ============================== REQUIRES ================================
+# Repository secrets (Settings -> Secrets and variables -> Actions):
+#   CLOUDFLARE_API_TOKEN   Custom token with Account -> Cloudflare Pages ->
+#                          Edit, plus Account -> Workers Scripts -> Edit.
+#                          (The old "Cloudflare Pages: Edit" template is gone.)
+#   CLOUDFLARE_ACCOUNT_ID  Workers & Pages -> Account Details sidebar.
+#   THEME_DEPLOY_KEY       PRIVATE half of an SSH keypair whose PUBLIC half is
+#                          a read-only Deploy key on the Siki-Mahou-theme repo.
+#
+# Attaching a custom domain later: add it in the Cloudflare Pages project, then
+# change `url:` in _config.yml. `root:` stays "/" either way.
+# ========================================================================
+
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow only one deploy at a time; cancel superseded runs.
+concurrency:
+  group: deploy-cloudflare-pages
+  cancel-in-progress: true
+
+env:
+  # Cloudflare Pages project, created as a Direct Upload project.
+  # Serves at https://siki-mahou.pages.dev
+  CLOUDFLARE_PROJECT_NAME: siki-mahou
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout site (with private theme submodule)
+        uses: actions/checkout@v4
+        with:
+          # ssh-key authenticates the submodule clone. Without it the private
+          # theme fetch fails and the build has no theme to render.
+          ssh-key: ${{ secrets.THEME_DEPLOY_KEY }}
+          submodules: recursive
+          # Full history: Hexo reads git metadata for post dates when a post
+          # has no explicit `date:` in its front-matter.
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npx hexo clean && npx hexo generate
+
+      - name: Verify build output
+        # Fail loudly here rather than silently deploying an empty site.
+        run: |
+          test -f public/index.html || { echo "::error::public/index.html missing - build produced no home page"; exit 1; }
+          echo "Built $(find public -type f | wc -l) files."
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy public --project-name=${{ env.CLOUDFLARE_PROJECT_NAME }}

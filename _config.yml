@@ -12,9 +12,11 @@ language: en
 timezone: ""
 
 # URL
-## Project site on GitHub Pages: served under the /siki-mahou/ subpath.
-url: https://0xsikipon.github.io/siki-mahou
-root: /siki-mahou/
+## Cloudflare Pages serves from the domain root, not a subpath -- so root is "/"
+## (a GitHub Pages project site would have needed /siki-mahou/ here instead).
+## Swap `url` for the custom domain if one is attached later; `root` stays "/".
+url: https://siki-mahou.pages.dev
+root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
