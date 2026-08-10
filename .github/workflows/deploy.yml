@@ -44,16 +44,42 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout site (with private theme submodule)
+      # The site repo and the theme submodule live in two different private
+      # repos, so they need two different credentials:
+      #   - this repo        -> the automatic GITHUB_TOKEN (checkout's default)
+      #   - themes/reimu     -> THEME_DEPLOY_KEY, a deploy key registered on
+      #                         0XSIKIPON/Siki-Mahou-theme
+      # They cannot be combined: checkout's `ssh-key` input rewrites the auth
+      # for EVERY fetch it performs, including this repo's own -- and the deploy
+      # key has no access here, so the main fetch fails with a misleading
+      # "Repository not found". Hence: check out the site first, then bring the
+      # submodule in separately under an ssh-agent holding the deploy key.
+      - name: Checkout site
         uses: actions/checkout@v4
         with:
-          # ssh-key authenticates the submodule clone. Without it the private
-          # theme fetch fails and the build has no theme to render.
-          ssh-key: ${{ secrets.THEME_DEPLOY_KEY }}
-          submodules: recursive
+          # Submodule handled in the next step, with its own credential.
+          submodules: false
           # Full history: Hexo reads git metadata for post dates when a post
           # has no explicit `date:` in its front-matter.
           fetch-depth: 0
+
+      - name: Load theme deploy key
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.THEME_DEPLOY_KEY }}
+
+      - name: Check out private theme submodule
+        run: |
+          set -euo pipefail
+          git submodule sync --recursive
+          git submodule update --init --recursive
+          # A missing theme yields a site with no layouts rather than a hard
+          # failure, so assert it landed before spending time on the build.
+          test -f themes/reimu/_config.yml || {
+            echo "::error::themes/reimu did not check out - deploy key or submodule URL is wrong"
+            exit 1
+          }
+          echo "Theme checked out at $(git -C themes/reimu rev-parse --short HEAD)"
 
       - name: Set up Node
         uses: actions/setup-node@v4
