@@ -106,6 +106,28 @@ custom_font:
   code:
 
 # ---------------------------------------------------------------------------
+# Math: CTF crypto writeups are full of LaTeX, so KaTeX is on.
+#
+# This REQUIRES hexo-renderer-markdown-it-plus (see themes/reimu/_config.yml
+# above `math:`), which replaced hexo-renderer-marked in package.json.
+# hexo-renderer-marked mangles math before KaTeX ever sees it: it HTML-encodes
+# `=` to &#x3D;, turns `\\` row separators into a bare `\` plus <br>, and reads
+# `_{...}_` as italics and emits <em>. Every multi-line equation failed to
+# parse. markdown-it-plus renders math at BUILD time, so the markup never
+# passes through the prose renderer.
+#
+# autoRender stays false: the KaTeX HTML is already in the page, so the
+# browser only needs the stylesheet, not the auto-render script.
+# ---------------------------------------------------------------------------
+math:
+  enable: true
+  katex:
+    enable: true
+    autoRender: false
+  mathjax:
+    enable: false
+
+# ---------------------------------------------------------------------------
 # Search: local generator search (zero external service, zero config)
 # ---------------------------------------------------------------------------
 generator_search:
