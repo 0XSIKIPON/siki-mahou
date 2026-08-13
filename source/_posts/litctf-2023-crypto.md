@@ -8,7 +8,7 @@ tags:
   - crypto
   - lcg
   - lattice
-  - sage
+  - LLL
 banner: /images/posts/litctf-2023-crypto/litctf-banner.png
 cover: /images/posts/litctf-2023-crypto/litctf-banner.png
 description: "Three linked LCG challenges from LITCTF 2023 — an elliptic-curve LCG broken with Pohlig–Hellman, a nested LCG broken by elimination, and sixteen noisy LCGs broken with a lattice."
