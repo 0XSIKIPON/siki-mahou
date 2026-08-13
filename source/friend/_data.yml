@@ -3,7 +3,7 @@
 # through url_for(), so the site root prefix is not added automatically.
 # Paths must therefore include the / root, or be absolute URLs.
 - name: Raf² · Mohammed Rafraf
-  url: https://4n6nk8s.tech/
+  url: https://4n6nk8s.github.io/
   desc: Platform Engineer · Kubernetes Geek · Misc & Forensics Player
   image: /images/friends/raf2.jpeg
 
