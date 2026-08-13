@@ -158,6 +158,10 @@ footer:
     url: "../images/k8s-wheel.svg"
     rotate: true
     mask: true
+  # Copyright range, rendered as "<since>-<current year> sikipon"
+  # (themes/reimu/layout/_partial/footer.ejs:12). Theme default is 2020; this
+  # blog started in 2024. The end year is computed at build time.
+  since: 2024
 
 # ---------------------------------------------------------------------------
 # Inject CSS: replace every remaining yin-yang (taichi) with the masked k8s
