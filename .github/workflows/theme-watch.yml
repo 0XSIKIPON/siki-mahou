@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout site (submodule pointer only)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # We only need the recorded submodule SHA, not the theme contents --
           # so no deploy key and no submodule checkout here. Keeps this job

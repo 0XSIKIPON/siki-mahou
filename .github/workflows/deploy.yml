@@ -52,7 +52,7 @@ jobs:
       # found". Hence: check out the site first, then the submodule separately
       # under an ssh-agent holding the deploy key.
       - name: Checkout site
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # Submodule handled in the next step, with its own credential.
           submodules: false
