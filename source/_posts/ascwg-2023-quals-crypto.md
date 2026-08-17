@@ -16,7 +16,7 @@ description: "Three crypto challenges from the ASCWG 2023 qualifiers — a nonli
 
 A "nonlinear" system that was linear all along, and two ElGamal challenges undone by the same weak prime.
 
-![Arab Security Cyber Wargames](/images/posts/ascwg-2023-quals-crypto/awgamquals.jpeg)
+![Arab Security Cyber Wargames](/siki-mahou/images/posts/ascwg-2023-quals-crypto/awgamquals.jpeg)
 
 ## Event details
 

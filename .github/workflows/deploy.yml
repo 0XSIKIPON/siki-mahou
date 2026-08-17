@@ -1,59 +1,56 @@
-# Build the Hexo site and publish it to Cloudflare Pages.
+# Build the Hexo site and publish it to GitHub Pages.
 #
-# WHY NOT CLOUDFLARE'S GIT INTEGRATION:
-# The theme lives in a PRIVATE submodule (themes/reimu ->
-# 0XSIKIPON/Siki-Mahou-theme). Cloudflare's own builders have no clean way to
-# authenticate an SSH submodule, so we build here in Actions -- where a deploy
-# key works -- and push the finished public/ directory to Cloudflare with
-# Wrangler's direct-upload mode. Do NOT connect the Cloudflare Git integration.
+# WHY THE PAGES SOURCE IS "GitHub Actions" AND NOT "Deploy from a branch":
+# the theme is a PRIVATE submodule (themes/reimu -> 0XSIKIPON/Siki-Mahou-theme),
+# and Pages' own builder only fetches submodules that are public. Building here
+# lets us authenticate that fetch with a deploy key and hand Pages the finished
+# public/ directory.
 #
 # ============================== REQUIRES ================================
-# Repository secrets (Settings -> Secrets and variables -> Actions):
-#   CLOUDFLARE_API_TOKEN   Custom token with Account -> Cloudflare Pages ->
-#                          Edit, plus Account -> Workers Scripts -> Edit.
-#                          (The old "Cloudflare Pages: Edit" template is gone.)
-#   CLOUDFLARE_ACCOUNT_ID  Workers & Pages -> Account Details sidebar.
-#   THEME_DEPLOY_KEY       PRIVATE half of an SSH keypair whose PUBLIC half is
-#                          a read-only Deploy key on the Siki-Mahou-theme repo.
+# Repository secret (Settings -> Secrets and variables -> Actions):
+#   THEME_DEPLOY_KEY   PRIVATE half of an SSH keypair whose PUBLIC half is a
+#                      read-only Deploy key on the Siki-Mahou-theme repo.
 #
-# Attaching a custom domain later: add it in the Cloudflare Pages project, then
-# change `url:` in _config.yml. `root:` stays "/" either way.
+# Repository setting:
+#   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+#
+# The site is a PROJECT site, so it is served under /siki-mahou/. That prefix
+# lives in _config.yml (`root`) and, for paths that never pass through
+# url_for(), literally in the source -- see the note in _config.yml.
 # ========================================================================
 
-name: Deploy to Cloudflare Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-# Allow only one deploy at a time; cancel superseded runs.
+# One deploy at a time. cancel-in-progress is deliberately false: cancelling a
+# half-finished Pages deployment can leave the site in a broken state, so queue
+# instead of interrupting.
 concurrency:
-  group: deploy-cloudflare-pages
-  cancel-in-progress: true
-
-env:
-  # Cloudflare Pages project, created as a Direct Upload project.
-  # Serves at https://siki-mahou.pages.dev
-  CLOUDFLARE_PROJECT_NAME: siki-mahou
+  group: pages
+  cancel-in-progress: false
 
 permissions:
   contents: read
+  pages: write # publish to Pages
+  id-token: write # OIDC token deploy-pages exchanges for the upload
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      # The site repo and the theme submodule live in two different private
-      # repos, so they need two different credentials:
-      #   - this repo        -> the automatic GITHUB_TOKEN (checkout's default)
-      #   - themes/reimu     -> THEME_DEPLOY_KEY, a deploy key registered on
-      #                         0XSIKIPON/Siki-Mahou-theme
-      # They cannot be combined: checkout's `ssh-key` input rewrites the auth
-      # for EVERY fetch it performs, including this repo's own -- and the deploy
-      # key has no access here, so the main fetch fails with a misleading
-      # "Repository not found". Hence: check out the site first, then bring the
-      # submodule in separately under an ssh-agent holding the deploy key.
+      # The site repo is public but the theme submodule is private, so the two
+      # fetches need different credentials:
+      #   - this repo    -> the automatic GITHUB_TOKEN (checkout's default)
+      #   - themes/reimu -> THEME_DEPLOY_KEY
+      # They cannot be combined: checkout's `ssh-key` input rewrites auth for
+      # EVERY fetch it performs, including this repo's own -- and the deploy key
+      # has no access here, which fails with a misleading "Repository not
+      # found". Hence: check out the site first, then the submodule separately
+      # under an ssh-agent holding the deploy key.
       - name: Checkout site
         uses: actions/checkout@v4
         with:
@@ -94,14 +91,35 @@ jobs:
         run: npx hexo clean && npx hexo generate
 
       - name: Verify build output
-        # Fail loudly here rather than silently deploying an empty site.
+        # Fail loudly here rather than publishing an empty or half-built site.
         run: |
-          test -f public/index.html || { echo "::error::public/index.html missing - build produced no home page"; exit 1; }
+          set -euo pipefail
+          test -f public/index.html || {
+            echo "::error::public/index.html missing - build produced no home page"; exit 1;
+          }
+          # Every asset path must carry the project-site prefix. A bare "/images/"
+          # means something bypassed url_for() and would 404 once deployed.
+          if grep -rlq 'src="/images/' public/ 2>/dev/null; then
+            echo "::error::found unprefixed /images/ paths - they will 404 under /siki-mahou/"
+            grep -rl 'src="/images/' public/ | head
+            exit 1
+          fi
           echo "Built $(find public -type f | wc -l) files."
 
-      - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy public --project-name=${{ env.CLOUDFLARE_PROJECT_NAME }}
+          path: public
+
+  # Deploy is a separate job so the build cannot hold the Pages environment
+  # open while it runs, and so a build failure never reaches deployment.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
