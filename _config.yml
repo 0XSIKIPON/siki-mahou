@@ -12,11 +12,15 @@ language: en
 timezone: ""
 
 # URL
-## Cloudflare Pages serves from the domain root, not a subpath -- so root is "/"
-## (a GitHub Pages project site would have needed /siki-mahou/ here instead).
-## Swap `url` for the custom domain if one is attached later; `root` stays "/".
-url: https://siki-mahou.pages.dev
-root: /
+## GitHub Pages PROJECT site: served from a subpath, so root must be the repo
+## name. Every generated link runs through url_for(), which prefixes this --
+## but raw HTML/CSS written by hand does not, so those paths carry the prefix
+## literally (see the injector block in _config.reimu.yml and the reference
+## cards in posts).
+## If a custom domain is attached later, root goes back to "/" and those
+## literal prefixes have to come back out.
+url: https://0xsikipon.github.io/siki-mahou
+root: /siki-mahou/
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:

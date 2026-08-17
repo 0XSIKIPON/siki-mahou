@@ -16,7 +16,7 @@ description: "Three linked LCG challenges from LITCTF 2023 — an elliptic-curve
 
 Three crypto challenges, one generator, three completely different attacks.
 
-![LITCTF 2023 — LexMACS](/images/posts/litctf-2023-crypto/litctf-banner.png)
+![LITCTF 2023 — LexMACS](/siki-mahou/images/posts/litctf-2023-crypto/litctf-banner.png)
 
 ## Event details
 
