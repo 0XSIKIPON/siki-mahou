@@ -1,6 +1,6 @@
 ---
 title: "Deploying n8n on Railway: the hard way, then the right way"
-date: 2026-08-06 10:00:00
+date: 2026-08-26 10:00:00
 categories:
   - Blogs
 tags:
